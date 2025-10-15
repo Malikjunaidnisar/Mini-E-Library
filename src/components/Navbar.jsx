@@ -1,10 +1,10 @@
-import { Link } from 'react-router'; // Using react-router-dom for Link/routing
+import { Link } from 'react-router';
 import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router';
 import { useFirebase } from '../context/FireBase.jsx';
 import { useState, useEffect } from 'react';
 
-// --- Dark Mode Toggle Component ---
+// --- Dark Mode Toggle Component (Unchanged) ---
 const DarkModeToggle = ({ isDark, onToggle }) => (
   <button
     onClick={onToggle}
@@ -28,7 +28,7 @@ const DarkModeToggle = ({ isDark, onToggle }) => (
 );
 
 
-// --- Theme Configuration ---
+// --- Theme Configuration (Unchanged) ---
 const themes = {
   minimal: {
     navbar: 'bg-white shadow-md border-b border-gray-100 dark:bg-gray-900 dark:border-gray-700',
@@ -50,10 +50,11 @@ const Navbar = ({ theme = 'minimal' }) => {
     const user = firebase.user;
     const navigate = useNavigate();
     const currentTheme = themes[theme] || themes.minimal;
-
-    // Dark Mode State Management
+    
+    // Dark Mode State Management (Unchanged)
     const [darkMode, setDarkMode] = useState(() => {
-        return localStorage.getItem('theme') === 'dark';
+        return localStorage.getItem('theme') === 'dark' || 
+               (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     });
 
     useEffect(() => {
@@ -74,59 +75,68 @@ const Navbar = ({ theme = 'minimal' }) => {
         e.preventDefault();
         const auth = getAuth();
         signOut(auth)
-            .then(() => navigate('/login'))
+            .then(() => {
+                navigate('/login');
+            })
             .catch(error => console.error("Logout failed:", error));
     };
 
     return (
-        <nav className={`p-4 ${currentTheme.navbar} ${currentTheme.font} transition-all duration-500`}>
-            <div className="container mx-auto flex flex-wrap justify-between items-center">
+        <nav id="navbar-main" className={`h-16 p-4 ${currentTheme.navbar} ${currentTheme.font} transition-all duration-500 sticky top-0 z-50`}>
+            <div className="container mx-auto flex justify-between items-center h-full"> 
                 
                 {/* Brand/Logo (Left Side) */}
                 <Link to='/' className={`text-2xl font-bold ${currentTheme.link} transition-colors duration-300`}>
                     {theme === 'vintage' ? 'The Old Library' : 'BookMart'}
                 </Link>
 
-                {/* Navigation Links (Right Side) */}
-                <ul className="flex flex-wrap items-center space-x-4 sm:space-x-6">
+                {/* --- Navigation Links --- */}
+                {/* - Default (mobile/small): flex-col (vertical stack) 
+                  - sm:flex-row: Switch to horizontal layout on screens size 'sm' and up
+                  - space-y-2: Add vertical spacing on mobile
+                  - sm:space-x-6: Add horizontal spacing on desktop
+                  - absolute/inset/p-4: To make the menu overlay the content when vertical
+                */}
+                <ul className="absolute sm:static top-16 right-0 w-full sm:w-auto p-4 sm:p-0 bg-white dark:bg-gray-900 sm:bg-transparent sm:dark:bg-transparent shadow-lg sm:shadow-none 
+                               flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6">
                     
                     {/* Home Link */}
-                    <li className="hidden sm:block"> {/* Hide on extra small screens for cleaner look */}
-                        <Link to='/' className={`text-sm md:text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Home</Link>
+                    <li> 
+                        <Link to='/' className={`block text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Home</Link>
                     </li>
                     
                     {/* Admin Links */}
                     {user?.email === "admin@gmail.com" && (
                         <>
-                            <li className="hidden sm:block">
-                                <Link to='/adminpage' className={`text-sm md:text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Add Books</Link>
+                            <li>
+                                <Link to='/adminpage' className={`block text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Add Books</Link>
                             </li>
-                            <li className="hidden sm:block">
-                                <Link to='/allbooklist' className={`text-sm md:text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Book List</Link>
+                            <li> 
+                                <Link to='/allbooklist' className={`block text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Book List</Link>
                             </li>
                         </>
                     )}
                     
                     {/* User Links */}
                     <li>
-                        <Link to='/cart' className={`text-sm md:text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Cart</Link>
+                        <Link to='/cart' className={`block text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Cart</Link>
                     </li>
                     <li>
-                        <Link to='/orders' className={`text-sm md:text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Orders</Link>
+                        <Link to='/orders' className={`block text-base hover:opacity-80 transition duration-300 ${currentTheme.link}`}>Orders</Link>
                     </li>
 
                     {/* Logout Button */}
                     <li>
                         <button 
                             onClick={handleLogOut} 
-                            className={`text-sm md:text-base font-medium transition duration-300 ${currentTheme.logout}`}
+                            className={`block text-left text-base font-medium transition duration-300 ${currentTheme.logout}`}
                         >
                             Logout
                         </button>
                     </li>
                     
                     {/* Dark Mode Toggle */}
-                    <li>
+                    <li className="sm:pl-4">
                         <DarkModeToggle isDark={darkMode} onToggle={toggleDarkMode} />
                     </li>
                 </ul>
