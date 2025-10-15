@@ -82,23 +82,21 @@ const Navbar = ({ theme = 'minimal' }) => {
     };
 
     return (
-        <nav id="navbar-main" className={`h-16 p-4 ${currentTheme.navbar} ${currentTheme.font} transition-all duration-500 sticky top-0 z-50`}>
-            <div className="container mx-auto flex justify-between items-center h-full"> 
+        // IMPORTANT CHANGE: Removed 'sticky top-0 z-50' and added 'mb-4'
+        <nav id="navbar-main" className={`p-4 mb-4 ${currentTheme.navbar} ${currentTheme.font} transition-all duration-500`}>
+            {/* The outer flex container now stacks vertically on mobile (default) and horizontally on desktop (sm:flex-row) */}
+            <div className="container mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center"> 
                 
-                {/* Brand/Logo (Left Side) */}
-                <Link to='/' className={`text-2xl font-bold ${currentTheme.link} transition-colors duration-300`}>
-                    {theme === 'vintage' ? 'The Old Library' : 'BookMart'}
-                </Link>
+                {/* Logo and Dark Mode Toggle (Takes full width on mobile) */}
+                <div className="flex justify-between items-center w-full sm:w-auto mb-4 sm:mb-0">
+                    <Link to='/' className={`text-2xl font-bold ${currentTheme.link} transition-colors duration-300`}>
+                        {theme === 'vintage' ? 'The Old Library' : 'BookMart'}
+                    </Link>
+                    <DarkModeToggle isDark={darkMode} onToggle={toggleDarkMode} />
+                </div>
 
-                {/* --- Navigation Links --- */}
-                {/* - Default (mobile/small): flex-col (vertical stack) 
-                  - sm:flex-row: Switch to horizontal layout on screens size 'sm' and up
-                  - space-y-2: Add vertical spacing on mobile
-                  - sm:space-x-6: Add horizontal spacing on desktop
-                  - absolute/inset/p-4: To make the menu overlay the content when vertical
-                */}
-                <ul className="absolute sm:static top-16 right-0 w-full sm:w-auto p-4 sm:p-0 bg-white dark:bg-gray-900 sm:bg-transparent sm:dark:bg-transparent shadow-lg sm:shadow-none 
-                               flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6">
+                {/* --- Navigation Links: Stack vertically on mobile, horizontally on desktop --- */}
+                <ul className="flex flex-col sm:flex-row items-start sm:items-center w-full sm:w-auto space-y-2 sm:space-y-0 sm:space-x-6">
                     
                     {/* Home Link */}
                     <li> 
@@ -135,10 +133,6 @@ const Navbar = ({ theme = 'minimal' }) => {
                         </button>
                     </li>
                     
-                    {/* Dark Mode Toggle */}
-                    <li className="sm:pl-4">
-                        <DarkModeToggle isDark={darkMode} onToggle={toggleDarkMode} />
-                    </li>
                 </ul>
             </div>
         </nav>
